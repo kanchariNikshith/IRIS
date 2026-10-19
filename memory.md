@@ -157,6 +157,9 @@ Improve false-wake rejection with separate training/validation data; v3 regresse
 
 ## Session log (newest first)
 
+### 19 Oct 2026: Correct future commit attribution
+- Owner confirmed the GitHub account uses a different verified email from the previous local Git identity. Set repository-local commit email to the account-linked GitHub noreply address shown in the owner screenshot, preserving their private-email preference. Existing published commits remain unchanged pending approval to rewrite their author/committer email and safely update main.
+
 ### 19 Oct 2026: Explain missing profile contributions
 - Read-only attribution check: public GitHub REST metadata for 1a60057 has null linked author/committer; commit email is the configured owner Gmail address. Explained that the owner must associate this exact email with their GitHub account; qualifying contribution updates can take up to 24 hours. No account settings or commit history changed.
 
