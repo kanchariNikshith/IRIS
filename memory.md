@@ -157,6 +157,9 @@ Improve false-wake rejection with separate training/validation data; v3 regresse
 
 ## Session log (newest first)
 
+### 19 Oct 2026: Correct historical GitHub attribution
+- **Authorized:** owner approved correcting earlier published commits. Rewrote the author/committer email in 11 commits to the account-linked noreply address. Preserved every historical tree, message, author/committer name and timestamp; verified the rewritten tip tree matches its original. Kept the old history locally at refs/backup/attribution-before-20261019. Updating only main with an explicit force-with-lease against the previously verified remote tip; backup is not published. No runtime code changed.
+
 ### 19 Oct 2026: Correct future commit attribution
 - Owner confirmed the GitHub account uses a different verified email from the previous local Git identity. Set repository-local commit email to the account-linked GitHub noreply address shown in the owner screenshot, preserving their private-email preference. Existing published commits remain unchanged pending approval to rewrite their author/committer email and safely update main.
 
