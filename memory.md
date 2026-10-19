@@ -157,6 +157,9 @@ Improve false-wake rejection with separate training/validation data; v3 regresse
 
 ## Session log (newest first)
 
+### 19 Oct 2026: Explain missing profile contributions
+- Read-only attribution check: public GitHub REST metadata for 1a60057 has null linked author/committer; commit email is the configured owner Gmail address. Explained that the owner must associate this exact email with their GitHub account; qualifying contribution updates can take up to 24 hours. No account settings or commit history changed.
+
 ### 19 Oct 2026: Audit pushed history for API keys
 - **Asked:** check whether API keys were pushed and remove any found.
 - **Did:** fetched remote metadata; confirmed the sole published branch main matches local HEAD. Examined all nine published commits, 103 unique blobs and commit messages, comparing configured local secret values without printing them and scanning common key/token/private-key signatures and credential filenames. Reviewed flagged assignments and URLs in offline tests.
