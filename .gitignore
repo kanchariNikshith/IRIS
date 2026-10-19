@@ -1,0 +1,32 @@
+.env
+.env.*
+!.env.example
+.venv/
+.wake-training/
+.training-tools/
+.test-deps/
+__pycache__/
+.pytest_cache/
+.pytest-tmp*/
+data/
+client_secret*.json
+credentials*.json
+token*.json
+*.dpapi
+
+# Upstream research checkouts are documented in the integration reports.
+Heliox-OS-reference/
+livekit-wakeword-reference/
+openWakeWord-reference/
+
+# Local recordings, trained models, build outputs and editor state.
+*.wav
+*.onnx
+*.pt
+*.pth
+*.log
+build/
+dist/
+*.egg-info/
+.idea/
+.vscode/
