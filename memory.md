@@ -11,6 +11,7 @@
 - **Project files:** `PRD.md`, `Architecture.md`, `Rules.md`, `phase.md`, `design.md`, `AGENTS.md`, `CODEX_PROMPT.md`.
 
 ## Current status
+- **GitHub connected (19 Oct 2026):** origin is https://github.com/kanchariNikshith/IRIS.git. The owner supplied this public empty repository; pushed all eight initial component/phase commits through c9815b8 to main and configured origin/main tracking. Existing .gitignore is used; no license added. Previous 439-test verification remains applicable because this follow-up changes only Git configuration and documentation. Future authorized phases should be committed and pushed separately.
 - **GitHub preparation (19 Oct 2026):** organized the current checkout into eight component/phase import commits, including documentation/integration. This imports today's source, not reconstructed historical versions. Added GITHUB_WORKFLOW.md with future phase branch/commit/push steps and strengthened .gitignore to exclude reference clones, credentials, recordings and generated models. All 439 offline tests passed in 47.79s outside the sandbox; pip check and candidate secret scan passed. GitHub connector identifies kanchariNikshith, but no remote is configured and command-line Git has no noninteractive GitHub credential. Browser is at GitHub sign-in; repository URL and authentication are pending. Nothing pushed yet.
 - **Full functionality audit (19 Oct 2026):** 439 tests passed, zero failures/errors/skips in 76.69s. Main pip check, source compileall, masked configuration preflight and isolated training dependency check (86 packages) passed. Native read-only inventory resolved all six supported apps and found input/output devices; it did not launch apps or record/play audio. FUNCTIONAL_TEST_REPORT_2026-10-19.md distinguishes mocked integrations from pending Windows/provider/Gmail acceptance and unimplemented memory/later roadmap features. Completed the interrupted v3 owner evaluation and generated WAKE_ACCURACY_REPORT.md; no training or threshold changes.
 - **Accuracy/training completed (19 Oct 2026):** V2 and v3 trained/exported locally, preserving owner files and fixed threshold 0.5. V2 owner scores: LiveKit 92/104 (88.5%), 2 false wakes/60 s; openWakeWord 104/104 (100%), 8 false wakes/60 s. V3 owner evaluation completed after interruption: 66/104 (63.5%), 2 false wakes; 68/104 (65.4%), 4 false wakes. V3 regresses on natural recall despite 32/32 synthetic positives; neither version promoted. WAKE_ACCURACY_REPORT.md contains comparisons and limits. No model enabled.
@@ -28,7 +29,7 @@
 - **Last updated:** 19 Oct 2026.
 
 ## Next step
-Finish GitHub connection after owner signs in and supplies the empty repository URL; set origin, authenticate Git, push the eight commits and verify remote HEAD. Continue delivering authorized implementation work with phase-specific commits and pushes as described in GITHUB_WORKFLOW.md.
+GitHub connection and initial phase upload are complete. Continue delivering authorized implementation work with phase-specific commits and pushes as described in GITHUB_WORKFLOW.md.
 
 Improve false-wake rejection with separate training/validation data; v3 regressed and must not replace v2. No current model passes acceptance. The existing 104 owner recordings stay excluded from training/tuning. Follow FUNCTIONAL_TEST_REPORT_2026-10-19.md for pending Windows/device/provider/Gmail checks; longer independent wake evaluation and R4 remain pending. No additional recordings are required just to document these failing candidates.
 
@@ -78,6 +79,7 @@ Improve false-wake rejection with separate training/validation data; v3 regresse
 - Provider diagnostics now expose only allowlisted category/provider, numeric HTTP status and fixed guidance. 403 means permissions/restrictions rather than proof of a bad key; 404 means model/endpoint availability; 429 means quota; 503 means service availability. Allowlisted ErrorInfo reasons can distinguish HTTP 400 invalid/restricted-key responses. Raw SDK bodies, authorization headers, key fields and sensitive request content never enter diagnostics.
 
 ## Done
+- Connected the owner-supplied public GitHub repository and pushed the eight initial phase commits to main; origin/main tracking configured.
 - Prepared component/phase Git import and documented future GitHub delivery; excluded local/private/generated/reference files. Remote creation/authentication and upload remain pending, not completed.
 - Full functionality audit on 19 Oct: 439 passing tests, JUnit evidence, dependency/configuration/compilation checks and read-only native app/audio inventory. Detailed report: FUNCTIONAL_TEST_REPORT_2026-10-19.md. No live account actions, provider requests or new recording.
 - R3 isolated CPU environment/dependency snapshot, local extracted phonemizer and Piper hash receipts, auto-created dataset layout, resumable synthetic pipeline (80 originals, 120 optimizer steps), exported ONNX classifier, two development bundles, common-WAV evaluation and development-only runtime refusal. Added deliberate bounded environmental-negative capture; no owner audio recorded. Final suite 434 passed in 62.55s, pip/compile/config/training dependency checks pass. Runtime wake acceptance failed false-wake checks; no engine enabled.
@@ -153,6 +155,11 @@ Improve false-wake rejection with separate training/validation data; v3 regresse
 - The adapter cannot grant missing server-side model access. The user-authorized sweep found accessible gemini-3.6-flash and selected it; no runtime automatic model/provider fallback. Windows acceptance and free-tier quota/eligibility checks remain open. Keep the SDK pin and transport/request-count tests during upgrades.
 
 ## Session log (newest first)
+
+### 19 Oct 2026: Connect supplied GitHub repository and push phases
+- **Asked:** use https://github.com/kanchariNikshith/IRIS and advise on GitHub initialization options.
+- **Did:** confirmed repository ownership/push access and empty remote; set origin, pushed all eight prepared phase commits to main and configured upstream tracking. Advised using the existing .gitignore and leaving GitHub-generated files/license unchecked for this import. No license chosen or added. Repository is public.
+- **Verified:** Git push succeeded through c9815b8. No runtime code changed; the prior 439 passing tests and secret checks remain the applicable evidence. A follow-up documentation commit records the successful connection.
 
 ### 19 Oct 2026: Prepare phase-by-phase GitHub delivery
 - **Asked:** connect IRIS to GitHub and push code phase by phase.
