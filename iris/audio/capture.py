@@ -11,6 +11,7 @@ from typing import Any, Callable
 import numpy as np
 
 from iris.audio.worker import AudioError
+from iris.audio.wake import WakeModelError, WakeTrigger
 
 _stream_lease = Lock()
 
@@ -32,6 +33,18 @@ class RecordingSettings:
                 or not 0 < self.max_seconds <= 15
                 or not 0 < self.rms_threshold <= 1):
             raise ValueError("Invalid bounded recording settings.")
+
+
+@dataclass(frozen=True)
+class WakeCaptureSettings:
+    """Bound one standby attempt; continuous session rearming belongs to R4."""
+    frame_samples: int = 1280
+    standby_seconds: float = 60.0
+
+    def __post_init__(self) -> None:
+        if (type(self.frame_samples) is not int or not 1 <= self.frame_samples <= 16000
+                or not 0 < self.standby_seconds <= 300):
+            raise ValueError("Invalid bounded wake capture settings.")
 
 
 def mono_samples(audio: Any, *, limit: int) -> np.ndarray:
@@ -200,6 +213,72 @@ class CaptureOwner:
             raise AudioError("audio") from None
         finally:
             self.close()
+
+    def capture_after_wake(self, stop: Any, trigger: WakeTrigger, *,
+                           wake: WakeCaptureSettings = WakeCaptureSettings(),
+                           on_standby: Callable[[], None] = lambda: None,
+                           on_listening: Callable[[], None] = lambda: None) -> Any:
+        """Consume one trigger and hand the same stream to command endpointing.
+
+        The caller supplies an already-loaded detector inside a reapable worker.
+        No download, model selection or application action happens here.
+        Keep the entire triggering capture chunk in pre-roll, including samples
+        after the detector frame boundary, so immediate command speech is retained.
+        """
+        pending = np.empty(0, dtype=np.float32)
+        try:
+            if stop.is_set():
+                return None
+            trigger.reset()
+            self.ring.clear()
+            if self.stream is None and not self.open(stop):
+                return None
+            if stop.is_set():
+                return None
+            on_standby()
+            started = self.clock()
+            while not stop.is_set() and self.clock() - started < wake.standby_seconds:
+                if self.stream.read_available < self.settings.chunk_frames:
+                    stop.wait(0.02)
+                    continue
+                data, overflow = self.stream.read(self.settings.chunk_frames)
+                if stop.is_set():
+                    return None
+                if overflow:
+                    raise AudioError("audio")
+                data = mono_samples(data, limit=self.settings.chunk_frames)
+                if len(data) != self.settings.chunk_frames:
+                    raise AudioError("audio")
+                self.ring.append(data)
+                combined = np.concatenate((pending, data))
+                pending.fill(0)
+                consumed = 0
+                try:
+                    while len(combined) - consumed >= wake.frame_samples:
+                        if stop.is_set():
+                            return None
+                        frame = combined[consumed:consumed + wake.frame_samples]
+                        consumed += wake.frame_samples
+                        if trigger.predict(frame):
+                            if stop.is_set():
+                                return None
+                            return self.capture_command(stop, on_listening=on_listening)
+                    pending = combined[consumed:].copy()
+                finally:
+                    combined.fill(0)
+            return None
+        except (AudioError, WakeModelError):
+            raise
+        except PermissionError:
+            raise AudioError("permission") from None
+        except Exception:
+            raise AudioError("audio") from None
+        finally:
+            pending.fill(0)
+            try:
+                self.close()
+            finally:
+                trigger.close()
 
     def close(self) -> None:
         stream, self.stream = self.stream, None

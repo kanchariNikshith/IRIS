@@ -118,14 +118,32 @@ class WakeTrigger:
 
     def reset(self) -> None:
         if not self._closed:
-            self.detector.reset()
+            try:
+                self.detector.reset()
+            except Exception:
+                self._armed = False
+                raise WakeModelError() from None
             self._armed = True
 
     def close(self) -> None:
         if not self._closed:
             self._closed = True
             self._armed = False
-            self.detector.close()
+            try:
+                self.detector.close()
+            except Exception:
+                raise WakeModelError() from None
+
+
+def wake_command(text: str) -> str:
+    """Only forward the suffix of an explicit leading requested wake phrase.
+
+    Pre-roll can contain unrelated standby speech. If ASR omits/misrecognizes
+    the prefix, fail empty rather than dispatching that speech as a command.
+    This is a conservative transcript boundary, not speaker authentication.
+    """
+    match = re.match(r"^\s*iris\b[\s,.:;!?-]+let['\u2019]s\s+start\b", text, re.IGNORECASE)
+    return text[match.end():].lstrip(" \t\r\n,.:;!?-\u2014") if match else ""
 
 
 def main() -> int:

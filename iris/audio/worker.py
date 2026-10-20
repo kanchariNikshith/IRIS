@@ -5,6 +5,7 @@ from typing import Any, Callable
 from iris.telemetry import runtime_metrics
 
 MESSAGES = {
+    "wake": "The local IRIS wake detector isn't ready. You can use the orb or type commands instead.",
     "microphone": "I can't find a microphone. You can type commands instead.",
     "permission": "Microphone access was denied. Check Windows microphone permissions; you can type commands instead.",
     "audio": "I couldn't record from the audio device. Check the default microphone; you can type commands instead.",
@@ -82,7 +83,7 @@ def run_worker(target: Callable[..., None], args: tuple[Any, ...], stop: Any, *,
                     raise AudioError("audio") from None
                 if stop.is_set():
                     return None
-                if kind == "state" and value in {"listening", "processing"}:
+                if kind == "state" and value in {"standby", "listening", "processing"}:
                     phase_deadline = min(deadline, clock() + (state_timeouts or {}).get(value, timeout))
                     on_state(value)
                 elif kind == "text" and isinstance(value, str):

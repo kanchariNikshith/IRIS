@@ -11,6 +11,13 @@ coverage, measured wake results and outstanding live acceptance checks.
 
 ## Active R-roadmap runtime update — 15 Oct 2026
 
+20 Oct: R3 now includes a tested development path from wake detection to command
+capture on one microphone stream, preserving immediate speech and bounded pre-roll.
+Cancellation, worker watchdogs and local transcription share the existing audio
+ownership. Normal GUI/startup wake listening remains disabled: every current model
+still fails acceptance. See [R3 acceptance](ROADMAP_R3_ACCEPTANCE.md) for scope,
+verification and remaining model/device checks.
+
 19 Oct: larger v2/v3 models have been trained locally and compared on the frozen
 owner corpus. V3 regressed on recall; all candidates fail acceptance. Wake remains disabled; improved phrase
 recall alone does not pass false-activation acceptance. The latest full offline

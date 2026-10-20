@@ -1,6 +1,6 @@
 # IRIS: step-by-step implementation phases
 
-Version 2, 15 Oct 2026. **Active roadmap. Current implementation: R3 development/evaluation (16 Oct).**
+Version 2, 15 Oct 2026. **Active roadmap. Current implementation: R3 development/evaluation and bounded capture handoff (20 Oct).**
 
 Implementation authorized by the owner's subsequent 15 Oct request. R0 baseline
 and R1 runtime changes passed automated checks (359 and 384 tests respectively);
@@ -74,7 +74,7 @@ explicitly mapped to their new replacements rather than blindly rerun.
 | R0 | Reproducible baseline and carried-forward acceptance | Existing checkout | Automated checks passed |
 | R1 | Orb-only UI and local commands without AI calls | R0 | Automated checks passed; Windows pending |
 | R2 | One microphone owner and bounded audio lifecycle | R1 | Automated checks passed; device pending |
-| R3 | Evaluated custom IRIS wake activation | R2 | Development train/export/compare passed; model accuracy/owner acceptance pending |
+| R3 | Evaluated custom IRIS wake activation | R2 | Development train/export/compare and bounded capture handoff implemented; model accuracy/device acceptance pending |
 | R4 | Follow-ups, interruption and pause semantics | R3 | Planned |
 | R5 | Installed-app discovery and observed Windows controls | R4 | Planned |
 | R6 | Verified Notepad dictation and corrections | R5 | Planned |

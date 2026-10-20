@@ -3,6 +3,53 @@
 Status: **implementing; development candidates fail false-activation acceptance**.
 Model improvement and long-run/device measurements remain required. Not Windows accepted.
 
+## Single-stream wake handoff — 20 Oct 2026
+
+Implemented a bounded development integration path: `CaptureOwner.capture_after_wake`
+feeds exact float32 detector frames from the existing 100 ms capture chunks, retains
+two seconds of pre-roll including the triggering chunk's unconsumed tail, then
+continues command endpointing on the same stream. One trigger permits one capture;
+it has no Brain, tool or approval callback. Timeout, cancellation, overflow, driver
+and detector failures close the stream and detector and clear retained buffers.
+
+`Ears.listen_for_wake` runs this path inside the existing reapable worker and shares
+the parent microphone lease with hotkey capture and supplied-audio transcription.
+Its explicit factory constructs the detector before microphone opening. Standby is
+bounded to 60 seconds by default (maximum 300), with parent watchdogs for standby,
+command capture and transcription. An unreapable worker prevents another capture.
+This is an internal development API: no GUI/startup setting, continuous rearming,
+production engine selection or R4 session behavior is enabled.
+
+Whisper runs once after a hit and after microphone/detector closure. Only the suffix
+after a recognized leading `IRIS, let's start` reaches the caller; wake-only or
+unclear-prefix transcripts return empty. This conservative boundary can reject
+commands when pre-roll clips the phrase or ASR changes it. Natural one-utterance,
+slow-phrase and device acceptance must measure this before activation. Recognized
+text still needs the ordinary Brain/registry/gate; the keyword is no authorization.
+
+Offline tests cover exact frame/tail preservation, bounded pre-roll, wake/no-wake,
+stalled capture, cancellation at each handoff, sanitized detector/driver failures,
+cleanup, parent lease exclusion, watchdog/reaping and a mocked wake-to-local-clock
+command through the existing audited Brain. Focused audio checks: **107 passed**.
+Full working-tree suite: **490 passed in 34.27s**, with Qt local-pipe access;
+the restricted run had 489 passes and one GUI singleton pipe failure. Compileall,
+pip check and CRLF-aware diff whitespace checks passed. Existing greeting edits
+were present before this work and are preserved separately from the R3 commit;
+the working-tree test total includes their ten tests. No microphone, provider or
+owner recording was used.
+
+The exact staged R3 source was also exported to an isolated local directory,
+excluding the earlier greeting edits: **480 passed in 97.56s**. The local JUnit
+receipt is `data/r3-staged-results.xml`. After a repeated implementation request
+arrived with working files reverted, the R3 files were restored from the index
+only after confirming each matched its pre-change baseline; both test copies'
+R3 Python files were checked against the index.
+
+All previously measured models remain development-only and fail acceptance.
+Next: improve false-wake rejection with independent training/validation data;
+then choose a qualifying engine and measure the integrated path on Windows,
+including >=100 natural positives, eight hours of negatives and resource budgets.
+
 ## Larger training experiments — 17 Oct 2026
 
 V2 trained with 128 synthetic training/32 validation speech clips per class,

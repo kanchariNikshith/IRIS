@@ -230,6 +230,17 @@ def test_hung_capture_has_a_shorter_parent_side_timeout():
     process.close.assert_called_once()
 
 
+def test_hung_wake_standby_has_a_parent_watchdog_and_is_reaped():
+    context, _, _, process = worker_context([("state", "standby")])
+    state = Mock()
+    with pytest.raises(AudioError) as caught:
+        run_worker(Mock(), (), Event(), timeout=166, context=context, on_state=state,
+                   clock=Mock(side_effect=[0, 0, 0, 62]), state_timeouts={"standby": 61})
+    assert caught.value.kind == "timeout"
+    state.assert_called_once_with("standby")
+    process.close.assert_called_once()
+
+
 def test_ears_close_prevents_worker_creation():
     runner = Mock()
     ears = Ears("base", runner=runner)

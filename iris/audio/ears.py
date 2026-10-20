@@ -4,7 +4,8 @@ from time import monotonic
 from typing import Any, Callable
 
 from iris.audio.worker import AudioError, StopToken, run_worker
-from iris.audio.capture import CaptureOwner, RecordingSettings, mono_samples
+from iris.audio.capture import CaptureOwner, RecordingSettings, WakeCaptureSettings, mono_samples
+from iris.audio.wake import WakeModelError, WakeTrigger, wake_command
 
 _capture_lease = Lock()
 
@@ -73,6 +74,40 @@ def _transcribe_captured(sender: Any, cancel: Any, model_name: str, audio: Any) 
         sender.close()
 
 
+def _recognize_after_wake(sender: Any, cancel: Any, model_name: str,
+                          trigger_factory: Callable[[], WakeTrigger],
+                          settings: WakeCaptureSettings) -> None:
+    """Development integration entrypoint; the model is loaded before mic open."""
+    audio = None
+    try:
+        if cancel.is_set():
+            sender.send(("empty", ""))
+            return
+        try:
+            trigger = trigger_factory()
+        except Exception:
+            raise WakeModelError() from None
+        audio = CaptureOwner().capture_after_wake(cancel, trigger, wake=settings,
+            on_standby=lambda: sender.send(("state", "standby")),
+            on_listening=lambda: sender.send(("state", "listening")))
+        if audio is None or cancel.is_set():
+            sender.send(("empty", ""))
+            return
+        sender.send(("state", "processing"))
+        text = wake_command(transcribe_audio(audio, model_name, cancel))
+        sender.send(("text", "" if cancel.is_set() else text))
+    except WakeModelError:
+        sender.send(("error", "wake"))
+    except AudioError as error:
+        sender.send(("error", error.kind))
+    except Exception:
+        sender.send(("error", "audio"))
+    finally:
+        if audio is not None:
+            audio.fill(0)
+        sender.close()
+
+
 class Ears:
     def __init__(self, model_name: str, *, runner: Any = run_worker) -> None:
         self.model_name = model_name
@@ -118,6 +153,36 @@ class Ears:
             raise
         finally:
             samples.fill(0)
+            if reaped:
+                _capture_lease.release()
+
+    def listen_for_wake(self, trigger_factory: Callable[[], WakeTrigger], cancel: Any,
+                        on_state: Callable[[str], None], *,
+                        settings: WakeCaptureSettings = WakeCaptureSettings()) -> str | None:
+        """One bounded development turn; not wired to GUI/startup or auto-rearm.
+
+        Factory must be spawn-picklable and load pinned local assets in the child.
+        Production model selection and acceptance are still required before use.
+        Uses the same parent lease as hotkey capture and supplied-audio ASR.
+        """
+        token = StopToken(cancel, self.closed)
+        if token.is_set():
+            return None
+        if not _capture_lease.acquire(blocking=False):
+            raise AudioError("audio")
+        reaped = True
+        try:
+            return self._runner(_recognize_after_wake,
+                (self.model_name, trigger_factory, settings), token,
+                timeout=settings.standby_seconds + 106.0, on_state=on_state,
+                state_timeouts={"standby": settings.standby_seconds + 1.0,
+                                "listening": 16.0, "processing": 60.0})
+        except AudioError as error:
+            if error.kind == "shutdown":
+                reaped = False
+                self.closed.set()
+            raise
+        finally:
             if reaped:
                 _capture_lease.release()
 

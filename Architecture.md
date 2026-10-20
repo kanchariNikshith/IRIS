@@ -2,6 +2,16 @@
 
 ## Active R1 runtime update — 15 Oct 2026
 
+R3 handoff (20 Oct): `CaptureOwner.capture_after_wake` now feeds exact detector
+frames and transitions to command capture on the same stream, retaining bounded
+pre-roll and the triggering chunk's tail. `Ears.listen_for_wake` is a bounded
+development entrypoint inside the existing owned worker, with shared capture
+lease, standby watchdog and local ASR only after wake and microphone closure.
+It returns only the command after an explicit leading wake phrase; unclear/wake-only
+transcripts return empty. No GUI/startup activation or continuous rearm is wired;
+current models still fail acceptance. Detector factories are explicitly injected
+for integration testing; production engine selection/asset loading remains pending.
+
 R3 development (16 Oct): training/pipeline.py owns an isolated CPU synthetic
 training/export workflow, and candidate/evaluation modules compare LiveKit
 overlapping windows with openWakeWord ONNX streaming on common WAVs. These are
