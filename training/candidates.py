@@ -32,7 +32,10 @@ class OpenWakeWordCandidate:
     def predict(self, frame: np.ndarray) -> float:
         score = 0.
         for pcm in self.converter.feed(frame):
-            score = float(self.backend.predict(pcm)[self.key])
+            current = float(self.backend.predict(pcm)[self.key])
+            if not np.isfinite(current) or not 0 <= current <= 1:
+                raise WakeModelError()
+            score = max(score, current)
         return score
 
     def reset(self) -> None:

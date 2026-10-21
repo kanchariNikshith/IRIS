@@ -3,6 +3,32 @@
 Status: **implementing; development candidates fail false-activation acceptance**.
 Model improvement and long-run/device measurements remain required. Not Windows accepted.
 
+## Re-audit — 21 Oct 2026
+
+Full working-tree offline suite: **496 passed in 62.10s**, with Qt local-pipe
+access; local receipt `data/r3-audit-21oct-tests.xml`. Focused wake checks: 65
+passed. Dependency, compilation and masked configuration checks passed.
+
+Fixed three audit findings in the development evaluator/adapters: multi-frame
+openWakeWord input now preserves the peak score and rejects invalid intermediate
+scores; positive terminal partial frames are flushed before reset; processing
+timings exclude disarmed positive-tail calls. Six regression cases reproduced
+the defects before the fixes. Original model/result files are preserved; earlier
+recall/timing figures have not been recalculated using this corrected evaluator.
+All six bundle byte/hash checks passed and normal preflight rejects each one.
+The frozen 104-positive/four-negative owner corpus hashes still match.
+All six real ONNX bundles also loaded, predicted on synthetic silence, reset and
+closed successfully in `.wake-training`; receipt `data/r3-audit-21oct-models.json`.
+This checks local runtime compatibility only, not accuracy or live capture.
+
+R3 remains incomplete: the GUI/VoiceController never calls the development wake
+API, there is no wake configuration or selected accepted engine, and long-run
+negative/resource/device/license acceptance is pending. Exact-prefix filtering
+and two-second pre-roll need natural slow-phrase validation. See the detailed
+[audit and manual checklist](R3_AUDIT_2026-10-21.md) for reproducible checks and
+their limits. No live room audio, retraining, threshold change or cloud call was
+performed during this audit.
+
 ## Single-stream wake handoff — 20 Oct 2026
 
 Implemented a bounded development integration path: `CaptureOwner.capture_after_wake`

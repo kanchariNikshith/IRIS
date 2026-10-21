@@ -1,5 +1,11 @@
 # IRIS wake detection: measured training/test scorecard
 
+21 Oct audit note: the historical results below are preserved, not fresh reruns.
+The evaluator now flushes positive terminal partial frames and excludes disarmed
+positive-tail calls from processing-time averages. Future comparisons must state
+the evaluator version/padding policy; earlier recall/timing values have not been
+recalculated. See [R3 audit](R3_AUDIT_2026-10-21.md). No candidate is promoted.
+
 The owner test contains 104 wake recordings and 60 seconds of background audio.
 Scores below measure detection on those recordings, not overall live-assistant reliability.
 

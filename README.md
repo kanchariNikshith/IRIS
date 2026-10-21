@@ -11,6 +11,11 @@ coverage, measured wake results and outstanding live acceptance checks.
 
 ## Active R-roadmap runtime update — 15 Oct 2026
 
+21 Oct R3 re-audit: 496 offline tests passed. Fixed detector/evaluator edge cases;
+normal GUI wake activation remains unwired and all models remain unaccepted.
+See the [audit and manual checks](R3_AUDIT_2026-10-21.md) before trying the wake
+phrase: click/hotkey voice is available, hands-free wake is not yet available.
+
 20 Oct: R3 now includes a tested development path from wake detection to command
 capture on one microphone stream, preserving immediate speech and bounded pre-roll.
 Cancellation, worker watchdogs and local transcription share the existing audio

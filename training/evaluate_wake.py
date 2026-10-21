@@ -32,8 +32,13 @@ def wav_frames(path: Path, *, positive: bool):
         consumed = 0
         while payload := source.readframes(1280):
             samples = np.frombuffer(payload, dtype="<i2").astype(np.float32) / 32768.
+            actual_samples = len(samples)
+            # Flush the last positive frame before its detector is reset. Keep
+            # negative tails unpadded so successive files remain continuous.
+            if positive and len(samples) < 1280:
+                samples = np.pad(samples, (0, 1280 - len(samples)))
             consumed += len(samples)
-            yield samples, len(samples)
+            yield samples, actual_samples
         # Full window for short positives; no truncation of a long wake phrase.
         while positive and consumed < 32000:
             count = min(1280, 32000 - consumed)
@@ -50,6 +55,7 @@ def score_corpus(detector, positives: list[Path], negatives: list[Path], *, thre
     timer = [0.]
     trigger = WakeTrigger(detector, threshold=threshold, clock=lambda: timer[0])
     hits = false_wakes = negative_samples = predictions = 0
+    skipped_positive_frames = 0
     first_hit_times = []
     total_inference = maximum_inference = 0.
     started = perf_counter()
@@ -77,6 +83,11 @@ def score_corpus(detector, positives: list[Path], negatives: list[Path], *, thre
                     timer[0] += len(frame) / 16000
                     if not positive:
                         negative_samples += actual_samples
+                    if positive and detected:
+                        # A one-hit trigger is disarmed for the rest of this clip;
+                        # timing those no-ops understates actual processing cost.
+                        skipped_positive_frames += 1
+                        continue
                     before = perf_counter()
                     hit = trigger.predict(frame)
                     elapsed = perf_counter() - before
@@ -105,10 +116,14 @@ def score_corpus(detector, positives: list[Path], negatives: list[Path], *, thre
             "negative_hours": hours, "false_wakes": false_wakes,
             "false_wakes_per_hour": false_wakes / hours if hours else None,
             "threshold": threshold, "mean_frame_ms": 1000 * total_inference / max(1, predictions),
+            "prediction_frames": predictions,
+            "skipped_after_positive_hit_frames": skipped_positive_frames,
+            "processing_timing_policy": "armed trigger calls only; excludes synthetic priming and disarmed positive tails; not a device resource benchmark",
             "max_frame_ms": 1000 * maximum_inference, "evaluation_seconds": perf_counter() - started,
             "release_accepted": False,
             "negative_policy": "continuous concatenation with one initial reset; reset/debounce after hits",
             "context_policy": "two seconds synthetic silence before each positive and before the negative stream; excluded from measured corpus duration",
+            "positive_padding_policy": "terminal positive frame padded to 1280 samples, then short clips padded to two seconds; padding is synthetic, never measured negative duration",
             "limits": "Corpus provenance, independent owner tests, idle CPU/RAM/battery and Windows acceptance still required."}
     finally:
         trigger.close()

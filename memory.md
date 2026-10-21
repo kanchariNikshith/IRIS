@@ -11,6 +11,7 @@
 - **Project files:** `PRD.md`, `Architecture.md`, `Rules.md`, `phase.md`, `design.md`, `AGENTS.md`, `CODEX_PROMPT.md`.
 
 ## Current status
+- **R3 re-audit (21 Oct 2026):** fixed three detector/evaluator edge cases with six reproducing regressions; all 496 working-tree tests pass. Six real local bundles pass load/predict/reset/close on synthetic silence and byte validation but remain development-only. Owner corpus hashes unchanged. R3_AUDIT_2026-10-21.md provides manual checks and explicitly identifies missing GUI wake wiring/engine selection and acceptance.
 - **R3 wake handoff (20 Oct 2026):** Added bounded single-stream wake-to-command capture, exact detector framing/tail retention, parent worker lease/watchdogs and local ASR only after a hit and microphone closure. Leading wake phrase is removed conservatively; wake-only/unclear-prefix transcripts return empty. Internal development API only; GUI/startup wake remains disabled and all existing models still fail acceptance. Full working-tree suite: 490 passed in 34.27s, including the separate pre-existing greeting tests.
 - **Published-history credential audit (19 Oct 2026):** fetched GitHub metadata and verified main matches the local commit. Scanned all nine published commits, 103 unique historical blobs and commit messages for local configured secrets, common API/token/private-key patterns and credential file paths. No real credentials found. Two credential-URL matches are deliberate example.com rejection-test inputs; other reviewed credential assignments are offline fixtures. .env never tracked; .env.example key fields are blank. No credential removal/history rewrite required.
 - **GitHub connected (19 Oct 2026):** origin is https://github.com/kanchariNikshith/IRIS.git. The owner supplied this public empty repository; pushed all eight initial component/phase commits through c9815b8 to main and configured origin/main tracking. Existing .gitignore is used; no license added. Previous 439-test verification remains applicable because this follow-up changes only Git configuration and documentation. Future authorized phases should be committed and pushed separately.
@@ -28,9 +29,11 @@
 - **Prototype phase history:** Legacy Phases 4 and 5 implemented under the earlier combined request. Main-window startup and orb click-to-open restore text/Mic/chat and Gmail review; rotating cyan HUD and gentle idle breathing retained. One shared Brain/voice/gate/log pipeline plus one Gmail worker. Official desktop OAuth/DPAPI storage, local previews and GUI-only gate-confirmed Gmail save/send implemented; native Windows/OAuth/API acceptance pending.
 - **Verification:** Phase 4 baseline 299 passed in 20.97s; Gmail subset 56 passed in 6.12s before final regressions; final full offline suite 358 passed in 26.43s. pip check and masked --check pass. No live Gmail consent/writes or hardware acceptance claimed.
 - **Earlier evidence:** user-reported core Phase 3 microphone/Whisper/tool/Gmail-browser-opening/speech success remains recorded; earlier unconfirmed checks stay open. Gemini 503/504 remains unresolved. No provider/model/key changes or live AI requests in this run. No Phase 6/7 features.
-- **Last updated:** 20 Oct 2026.
+- **Last updated:** 21 Oct 2026.
 
 ## Next step
+Use R3_AUDIT_2026-10-21.md for current manual checks. GUI wake is not wired; do not interpret the passing internal handoff tests as a usable hands-free feature.
+
 R3 bounded wake-to-command handoff is implemented and tested offline. Improve false-wake rejection using independent training/validation data, then select a qualifying engine and test this handoff on Windows before enabling ambient startup. Preserve the 104 owner recordings outside training/tuning; eight-hour negatives, latency/resources and R4 remain pending. Existing greeting changes stay separate from the R3 delivery. Continue phase-specific GitHub delivery per GITHUB_WORKFLOW.md.
 
 ## Decisions
@@ -79,6 +82,7 @@ R3 bounded wake-to-command handoff is implemented and tested offline. Improve fa
 - Provider diagnostics now expose only allowlisted category/provider, numeric HTTP status and fixed guidance. 403 means permissions/restrictions rather than proof of a bad key; 404 means model/endpoint availability; 429 means quota; 503 means service availability. Allowlisted ErrorInfo reasons can distinguish HTTP 400 invalid/restricted-key responses. Raw SDK bodies, authorization headers, key fields and sensitive request content never enter diagnostics.
 
 ## Done
+- 21 Oct R3 audit: 496 tests passed; detector/evaluator corrections, actual local model smoke checks and manual checklist completed. R3 remains partial.
 - 20 Oct R3: bounded wake-to-command capture and worker integration implemented; 490 offline working-tree tests passed, compilation/dependency checks passed. No live audio/model promotion.
 - Connected the owner-supplied public GitHub repository and pushed the eight initial phase commits to main; origin/main tracking configured.
 - Prepared component/phase Git import and documented future GitHub delivery; excluded local/private/generated/reference files. Remote creation/authentication and upload remain pending, not completed.
@@ -157,6 +161,12 @@ R3 bounded wake-to-command handoff is implemented and tested offline. Improve fa
 - The adapter cannot grant missing server-side model access. The user-authorized sweep found accessible gemini-3.6-flash and selected it; no runtime automatic model/provider fallback. Windows acceptance and free-tier quota/eligibility checks remain open. Keep the SDK pin and transport/request-count tests during upgrades.
 
 ## Session log (newest first)
+
+### 21 Oct 2026: Re-audit R3 and document manual checks
+- **Asked:** check R3 implementation thoroughly and explain how to test manually; request repeated after an interruption.
+- **Did:** reviewed detector/preflight, capture/handoff/worker lifecycle, GUI/config call sites, training/held-out separation and acceptance evidence. Added six reproducing regression cases and fixed peak-score loss/invalid intermediate scores, unflushed positive WAV tails, and misleading disarmed-frame processing timings. Created R3_AUDIT_2026-10-21.md with exact manual commands, expected disabled-wake behavior, click/hotkey baseline checks and future acceptance criteria. Historical result files and owner audio remain unchanged.
+- **Result:** regression reproduction 6 failed/5 passed before fixes; focused wake suite 65 passed; full working-tree suite 496 passed in 62.10s with local Qt-pipe access. Pip check, compileall and masked configuration check passed. All six bundles passed byte/hash verification, loaded/predicted/reset/closed on synthetic silence locally, and were rejected by normal preflight. Frozen owner snapshot still matches 104 positives/four negatives. Receipts: data/r3-audit-21oct-tests.xml and data/r3-audit-21oct-models.json. No live recording, provider request, model training/tuning or GUI action ran. Ten pre-existing greeting tests are included in the working-tree total and remain outside this R3 delivery.
+- **Conclusion/next:** R3 is partial, not accepted: GUI wake wiring/config/selected production engine and long-run/resource/device/license acceptance are pending. Previous owner recall/timing figures are historical and not recomputed with the corrected evaluator. Keep ambient wake disabled; improve models on separate data, then perform the documented integrated acceptance checks.
 
 ### 20 Oct 2026: Implement R3 single-stream wake handoff
 - **Asked:** START implementing R3.
